@@ -23,7 +23,12 @@ backend with DRF and React frontend.
 
 ### Frontend (React)
 
-- `frontend/src/App.jsx` - Main React application component
+- `frontend/package.json` - Frontend dependencies (React, Vite, axios, react-router-dom, react-query)
+- `frontend/vite.config.js` - Vite configuration for development server
+- `frontend/src/App.jsx` - Main React application component with routing setup
+- `frontend/src/services/api.js` - Axios configuration with JWT interceptors for Django API communication
+- `frontend/src/services/auth.js` - Authentication service functions (login, register, logout, token management)
+- `frontend/src/utils/constants.js` - Application constants (API URLs, routes, file limits, etc.)
 - `frontend/src/components/Auth/LoginForm.jsx` - User login component
 - `frontend/src/components/Auth/RegisterForm.jsx` - User registration component
 - `frontend/src/components/Layout/Header.jsx` - Navigation header component
@@ -37,10 +42,7 @@ backend with DRF and React frontend.
 - `frontend/src/components/Search/SearchBar.jsx` - Search input component
 - `frontend/src/components/Search/SearchResults.jsx` - Search results display
 - `frontend/src/components/Search/TagFilter.jsx` - Tag filtering component
-- `frontend/src/services/api.js` - API service functions for backend communication
-- `frontend/src/services/auth.js` - Authentication service functions
-- `frontend/src/utils/constants.js` - Application constants
-- `frontend/package.json` - Frontend dependencies
+- `frontend/src/components/__tests__/` - React component tests
 
 ### Tests
 
@@ -56,13 +58,15 @@ backend with DRF and React frontend.
 - Use `npm test` in the frontend directory to run React tests
 - Django media files will be stored locally in `media/` directory during development
 - CORS will be configured to allow React development server to communicate with Django
+- React development server runs on http://localhost:5173 (Vite default)
+- Django development server runs on http://localhost:8000
 
 ## Tasks
 
 - [ ] 1.0 Set up project foundation and authentication system
 
   - [x] 1.1 Initialize Django project with DRF and configure settings
-  - [ ] 1.2 Set up React frontend with Vite and configure development environment
+  - [x] 1.2 Set up React frontend with Vite and configure development environment
   - [ ] 1.3 Configure CORS and media file handling in Django
   - [ ] 1.4 Create user authentication models and serializers
   - [ ] 1.5 Implement JWT authentication endpoints (login, register, refresh)
