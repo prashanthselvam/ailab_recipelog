@@ -70,7 +70,7 @@ backend with DRF and React frontend.
   - [x] 1.2 Set up React frontend with Vite and configure development environment
   - [x] 1.3 Configure CORS and media file handling in Django
   - [x] 1.4 Create user authentication models and serializers
-  - [ ] 1.5 Implement JWT authentication endpoints (login, register, refresh)
+  - [x] 1.5 Implement JWT authentication endpoints (login, register, refresh)
   - [ ] 1.6 Create authentication service and context in React
   - [ ] 1.7 Build login and registration forms in React
   - [ ] 1.8 Set up protected routes and authentication guards
