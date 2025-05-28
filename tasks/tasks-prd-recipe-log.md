@@ -7,8 +7,10 @@ backend with DRF and React frontend.
 
 ### Backend (Django)
 
-- `recipe_log/settings.py` - Django settings configuration for DRF, CORS, media files
+- `recipe_log/settings.py` - Django settings configuration for DRF, CORS, media files, JWT authentication
 - `recipe_log/urls.py` - Main URL configuration
+- `requirements.txt` - Python dependencies (Django, DRF, CORS headers, JWT, Pillow, python-decouple)
+- `manage.py` - Django management script (auto-generated)
 - `accounts/models.py` - User model extensions if needed
 - `accounts/serializers.py` - User authentication serializers
 - `accounts/views.py` - Authentication views (login, register, logout)
@@ -18,7 +20,6 @@ backend with DRF and React frontend.
 - `recipes/views.py` - Recipe CRUD and search API views
 - `recipes/urls.py` - Recipe API URL patterns
 - `recipes/admin.py` - Django admin configuration for recipes
-- `requirements.txt` - Python dependencies
 
 ### Frontend (React)
 
@@ -60,7 +61,7 @@ backend with DRF and React frontend.
 
 - [ ] 1.0 Set up project foundation and authentication system
 
-  - [ ] 1.1 Initialize Django project with DRF and configure settings
+  - [x] 1.1 Initialize Django project with DRF and configure settings
   - [ ] 1.2 Set up React frontend with Vite and configure development environment
   - [ ] 1.3 Configure CORS and media file handling in Django
   - [ ] 1.4 Create user authentication models and serializers
