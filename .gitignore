@@ -12,9 +12,14 @@ media/
 
 # Node.js
 node_modules/
+frontend/dist/
+*.log
 
 # Environment variables
 .env
+
+# OS files
+.DS_Store
 
 # Cursor IDE
 .cursor/ 
