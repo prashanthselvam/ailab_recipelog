@@ -29,9 +29,13 @@ backend with DRF and React frontend.
 - `frontend/src/App.jsx` - Main React application component with routing setup
 - `frontend/src/services/api.js` - Axios configuration with JWT interceptors for Django API communication
 - `frontend/src/services/auth.js` - Authentication service functions (login, register, logout, token management)
+- `frontend/src/contexts/AuthContext.jsx` - React context for authentication state management
+- `frontend/src/hooks/useAuthActions.js` - Custom hook for authentication actions with navigation
 - `frontend/src/utils/constants.js` - Application constants (API URLs, routes, file limits, etc.)
 - `frontend/src/components/Auth/LoginForm.jsx` - User login component
 - `frontend/src/components/Auth/RegisterForm.jsx` - User registration component
+- `frontend/src/components/Auth/ProtectedRoute.jsx` - Route guard for authenticated users
+- `frontend/src/components/Auth/PublicRoute.jsx` - Route guard for unauthenticated users
 - `frontend/src/components/Layout/Header.jsx` - Navigation header component
 - `frontend/src/components/Layout/Sidebar.jsx` - Navigation sidebar component
 - `frontend/src/components/Recipe/RecipeCard.jsx` - Individual recipe display card
@@ -71,7 +75,7 @@ backend with DRF and React frontend.
   - [x] 1.3 Configure CORS and media file handling in Django
   - [x] 1.4 Create user authentication models and serializers
   - [x] 1.5 Implement JWT authentication endpoints (login, register, refresh)
-  - [ ] 1.6 Create authentication service and context in React
+  - [x] 1.6 Create authentication service and context in React
   - [ ] 1.7 Build login and registration forms in React
   - [ ] 1.8 Set up protected routes and authentication guards
 

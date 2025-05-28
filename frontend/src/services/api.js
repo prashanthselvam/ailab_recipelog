@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base API configuration
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://localhost:8001/api';
 
 // Create axios instance with default configuration
 const api = axios.create({
@@ -42,18 +42,28 @@ api.interceptors.response.use(
             refresh: refreshToken,
           });
 
-          const { access } = response.data;
+          const { access, refresh: newRefresh } = response.data;
           localStorage.setItem('access_token', access);
+
+          // Update refresh token if provided (token rotation)
+          if (newRefresh) {
+            localStorage.setItem('refresh_token', newRefresh);
+          }
 
           // Retry the original request with new token
           originalRequest.headers.Authorization = `Bearer ${access}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh failed, redirect to login
+        // Refresh failed, clear tokens and redirect to login
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        localStorage.removeItem('user');
+
+        // Only redirect if we're not already on the login page
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
       }
     }
 
