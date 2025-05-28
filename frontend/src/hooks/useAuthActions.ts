@@ -1,14 +1,26 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../utils/constants';
+import { useAuth } from '@/contexts/AuthContext';
+import { ROUTES } from '@/utils/constants';
+import { RegisterRequest, AuthServiceResponse } from '@/types/auth';
 
-export const useAuthActions = () => {
+interface UseAuthActionsReturn {
+  handleLogin: (email: string, password: string, redirectTo?: string) => Promise<AuthServiceResponse>;
+  handleRegister: (userData: RegisterRequest, redirectTo?: string) => Promise<AuthServiceResponse>;
+  handleLogout: (redirectTo?: string) => Promise<AuthServiceResponse>;
+  isLoading: boolean;
+}
+
+export const useAuthActions = (): UseAuthActionsReturn => {
   const { login, register, logout, clearError } = useAuth();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleLogin = async (email, password, redirectTo = ROUTES.HOME) => {
+  const handleLogin = async (
+    email: string,
+    password: string,
+    redirectTo: string = ROUTES.HOME
+  ): Promise<AuthServiceResponse> => {
     setIsLoading(true);
     clearError();
 
@@ -28,7 +40,10 @@ export const useAuthActions = () => {
     }
   };
 
-  const handleRegister = async (userData, redirectTo = ROUTES.HOME) => {
+  const handleRegister = async (
+    userData: RegisterRequest,
+    redirectTo: string = ROUTES.HOME
+  ): Promise<AuthServiceResponse> => {
     setIsLoading(true);
     clearError();
 
@@ -48,7 +63,7 @@ export const useAuthActions = () => {
     }
   };
 
-  const handleLogout = async (redirectTo = ROUTES.LOGIN) => {
+  const handleLogout = async (redirectTo: string = ROUTES.LOGIN): Promise<AuthServiceResponse> => {
     setIsLoading(true);
 
     try {

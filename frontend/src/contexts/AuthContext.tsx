@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authService } from '../services/auth';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { authService } from '@/services/auth';
+import { AuthState, AuthContextType, AuthAction, User, RegisterRequest, AuthServiceResponse } from '@/types/auth';
 
 // Initial state
-const initialState = {
+const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   isLoading: true,
@@ -21,10 +22,10 @@ const AUTH_ACTIONS = {
   LOAD_USER: 'LOAD_USER',
   CLEAR_ERROR: 'CLEAR_ERROR',
   UPDATE_USER: 'UPDATE_USER',
-};
+} as const;
 
 // Reducer function
-const authReducer = (state, action) => {
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case AUTH_ACTIONS.LOGIN_START:
     case AUTH_ACTIONS.REGISTER_START:
@@ -89,10 +90,10 @@ const authReducer = (state, action) => {
 };
 
 // Create context
-const AuthContext = createContext();
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Custom hook to use auth context
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -100,16 +101,21 @@ export const useAuth = () => {
   return context;
 };
 
+// Auth provider props
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
 // Auth provider component
-export const AuthProvider = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   // Load user on app start
   useEffect(() => {
-    const loadUser = () => {
+    const loadUser = (): void => {
       const user = authService.getCurrentUser();
       const isAuthenticated = authService.isAuthenticated();
-      
+
       dispatch({
         type: AUTH_ACTIONS.LOAD_USER,
         payload: { user: isAuthenticated ? user : null },
@@ -120,13 +126,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (email, password) => {
+  const login = async (email: string, password: string): Promise<AuthServiceResponse> => {
     dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
     try {
       const result = await authService.login(email, password);
-      
-      if (result.success) {
+
+      if (result.success && result.user) {
         dispatch({
           type: AUTH_ACTIONS.LOGIN_SUCCESS,
           payload: { user: result.user },
@@ -135,7 +141,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         dispatch({
           type: AUTH_ACTIONS.LOGIN_FAILURE,
-          payload: { error: result.error },
+          payload: { error: result.error || 'Login failed' },
         });
         return { success: false, error: result.error };
       }
@@ -150,13 +156,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register function
-  const register = async (userData) => {
+  const register = async (userData: RegisterRequest): Promise<AuthServiceResponse> => {
     dispatch({ type: AUTH_ACTIONS.REGISTER_START });
 
     try {
       const result = await authService.register(userData);
-      
-      if (result.success) {
+
+      if (result.success && result.user) {
         dispatch({
           type: AUTH_ACTIONS.REGISTER_SUCCESS,
           payload: { user: result.user },
@@ -165,7 +171,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         dispatch({
           type: AUTH_ACTIONS.REGISTER_FAILURE,
-          payload: { error: result.error },
+          payload: { error: result.error || 'Registration failed' },
         });
         return { success: false, error: result.error };
       }
@@ -180,7 +186,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout function
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
       await authService.logout();
     } catch (error) {
@@ -191,7 +197,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Update user function
-  const updateUser = (user) => {
+  const updateUser = (user: User): void => {
     dispatch({
       type: AUTH_ACTIONS.UPDATE_USER,
       payload: { user },
@@ -199,12 +205,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Clear error function
-  const clearError = () => {
+  const clearError = (): void => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
   };
 
   // Context value
-  const value = {
+  const value: AuthContextType = {
     ...state,
     login,
     register,
@@ -213,9 +219,5 @@ export const AuthProvider = ({ children }) => {
     clearError,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-}; 
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

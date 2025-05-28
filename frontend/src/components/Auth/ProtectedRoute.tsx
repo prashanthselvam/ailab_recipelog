@@ -1,8 +1,14 @@
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { ROUTES } from '../../utils/constants';
+import { useAuth } from '@/contexts/AuthContext';
+import { ROUTES } from '@/utils/constants';
+import { BaseComponentProps } from '@/types/common';
 
-const ProtectedRoute = ({ children }) => {
+interface ProtectedRouteProps extends BaseComponentProps {
+  children: React.ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
@@ -17,16 +23,10 @@ const ProtectedRoute = ({ children }) => {
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return (
-      <Navigate 
-        to={ROUTES.LOGIN} 
-        state={{ from: location }} 
-        replace 
-      />
-    );
+    return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
   }
 
-  return children;
+  return <>{children}</>;
 };
 
-export default ProtectedRoute; 
+export default ProtectedRoute;

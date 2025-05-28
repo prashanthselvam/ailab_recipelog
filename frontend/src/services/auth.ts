@@ -1,25 +1,29 @@
+import { AxiosError } from 'axios';
 import api from './api';
+import { User, RegisterRequest, AuthResponse, AuthServiceResponse, LoginRequest } from '@/types/auth';
+import { TOKEN_STORAGE_KEY, REFRESH_TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from '@/utils/constants';
 
 // Authentication service functions
 export const authService = {
   // Login user
-  async login(email, password) {
+  async login(email: string, password: string): Promise<AuthServiceResponse> {
     try {
-      const response = await api.post('/auth/login/', {
+      const response = await api.post<AuthResponse>('/auth/login/', {
         email,
         password,
-      });
+      } as LoginRequest);
 
       const { access, refresh, user } = response.data;
 
       // Store tokens in localStorage
-      localStorage.setItem('access_token', access);
-      localStorage.setItem('refresh_token', refresh);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem(TOKEN_STORAGE_KEY, access);
+      localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refresh);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
 
       return { success: true, user };
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Login failed';
+      const axiosError = error as AxiosError<any>;
+      const errorMessage = axiosError.response?.data?.error || axiosError.response?.data?.message || 'Login failed';
       return {
         success: false,
         error: errorMessage,
@@ -28,11 +32,11 @@ export const authService = {
   },
 
   // Register new user
-  async register(userData) {
+  async register(userData: RegisterRequest): Promise<AuthServiceResponse> {
     try {
       const { email, password, passwordConfirm, firstName, lastName, username } = userData;
 
-      const response = await api.post('/auth/register/', {
+      const response = await api.post<AuthResponse>('/auth/register/', {
         username: username || email.split('@')[0], // Use email prefix if no username
         email,
         password,
@@ -44,22 +48,23 @@ export const authService = {
       const { access, refresh, user } = response.data;
 
       // Store tokens in localStorage
-      localStorage.setItem('access_token', access);
-      localStorage.setItem('refresh_token', refresh);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem(TOKEN_STORAGE_KEY, access);
+      localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refresh);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
 
       return { success: true, user };
     } catch (error) {
+      const axiosError = error as AxiosError<any>;
       // Handle validation errors from Django
       let errorMessage = 'Registration failed';
 
-      if (error.response?.data) {
-        const errors = error.response.data;
+      if (axiosError.response?.data) {
+        const errors = axiosError.response.data;
         if (typeof errors === 'object') {
           // Extract first error message from validation errors
           const firstError = Object.values(errors)[0];
           if (Array.isArray(firstError)) {
-            errorMessage = firstError[0];
+            errorMessage = firstError[0] as string;
           } else if (typeof firstError === 'string') {
             errorMessage = firstError;
           }
@@ -76,9 +81,9 @@ export const authService = {
   },
 
   // Logout user
-  async logout() {
+  async logout(): Promise<void> {
     try {
-      const refreshToken = localStorage.getItem('refresh_token');
+      const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
 
       if (refreshToken) {
         // Call logout endpoint to blacklist the token
@@ -91,24 +96,24 @@ export const authService = {
       console.error('Logout API error:', error);
     } finally {
       // Always clear local storage
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+      localStorage.removeItem(USER_STORAGE_KEY);
     }
   },
 
   // Check if user is authenticated
-  isAuthenticated() {
-    const token = localStorage.getItem('access_token');
-    const user = localStorage.getItem('user');
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    const user = localStorage.getItem(USER_STORAGE_KEY);
     return !!(token && user);
   },
 
   // Get current user from localStorage
-  getCurrentUser() {
+  getCurrentUser(): User | null {
     try {
-      const userStr = localStorage.getItem('user');
-      return userStr ? JSON.parse(userStr) : null;
+      const userStr = localStorage.getItem(USER_STORAGE_KEY);
+      return userStr ? (JSON.parse(userStr) as User) : null;
     } catch (error) {
       console.error('Error parsing user data:', error);
       return null;
@@ -116,28 +121,30 @@ export const authService = {
   },
 
   // Get access token
-  getAccessToken() {
-    return localStorage.getItem('access_token');
+  getAccessToken(): string | null {
+    return localStorage.getItem(TOKEN_STORAGE_KEY);
   },
 
   // Get refresh token
-  getRefreshToken() {
-    return localStorage.getItem('refresh_token');
+  getRefreshToken(): string | null {
+    return localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
   },
 
   // Update user profile
-  async updateProfile(profileData) {
+  async updateProfile(profileData: Partial<User>): Promise<AuthServiceResponse> {
     try {
-      const response = await api.put('/auth/profile/update/', profileData);
+      const response = await api.put<{ user: User }>('/auth/profile/update/', profileData);
 
       const { user } = response.data;
 
       // Update user in localStorage
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
 
       return { success: true, user };
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Profile update failed';
+      const axiosError = error as AxiosError<any>;
+      const errorMessage =
+        axiosError.response?.data?.error || axiosError.response?.data?.message || 'Profile update failed';
       return {
         success: false,
         error: errorMessage,
@@ -146,7 +153,7 @@ export const authService = {
   },
 
   // Change password
-  async changePassword(currentPassword, newPassword) {
+  async changePassword(currentPassword: string, newPassword: string): Promise<AuthServiceResponse> {
     try {
       await api.post('/auth/change-password/', {
         old_password: currentPassword,
@@ -155,7 +162,9 @@ export const authService = {
 
       return { success: true };
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Password change failed';
+      const axiosError = error as AxiosError<any>;
+      const errorMessage =
+        axiosError.response?.data?.error || axiosError.response?.data?.message || 'Password change failed';
       return {
         success: false,
         error: errorMessage,
@@ -164,9 +173,9 @@ export const authService = {
   },
 
   // Get user profile
-  async getProfile() {
+  async getProfile(): Promise<AuthServiceResponse> {
     try {
-      const response = await api.get('/auth/profile/');
+      const response = await api.get<User>('/auth/profile/');
       return { success: true, user: response.data };
     } catch (error) {
       return {

@@ -1,8 +1,15 @@
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { ROUTES } from '../../utils/constants';
+import { useAuth } from '@/contexts/AuthContext';
+import { ROUTES } from '@/utils/constants';
+import { BaseComponentProps } from '@/types/common';
 
-const PublicRoute = ({ children, redirectTo = ROUTES.HOME }) => {
+interface PublicRouteProps extends BaseComponentProps {
+  children: React.ReactNode;
+  redirectTo?: string;
+}
+
+const PublicRoute: React.FC<PublicRouteProps> = ({ children, redirectTo = ROUTES.HOME }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
@@ -18,11 +25,11 @@ const PublicRoute = ({ children, redirectTo = ROUTES.HOME }) => {
   // Redirect authenticated users to the specified route or home
   if (isAuthenticated) {
     // Check if there's a redirect location from the login state
-    const from = location.state?.from?.pathname || redirectTo;
+    const from = (location.state as any)?.from?.pathname || redirectTo;
     return <Navigate to={from} replace />;
   }
 
-  return children;
+  return <>{children}</>;
 };
 
-export default PublicRoute; 
+export default PublicRoute;
