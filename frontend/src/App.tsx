@@ -2,6 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
+import PublicRoute from '@/components/Auth/PublicRoute';
+import LoginForm from '@/components/Auth/LoginForm';
+import RegisterForm from '@/components/Auth/RegisterForm';
 import AuthStatus from '@/components/Auth/AuthStatus';
 import { ROUTES } from '@/utils/constants';
 import './App.css';
@@ -16,18 +20,48 @@ const queryClient = new QueryClient({
   },
 });
 
-// Placeholder components (will be implemented in later tasks)
+// Home page component (protected)
 const HomePage: React.FC = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold mb-4">Recipe Log - Home Page</h1>
-    <AuthStatus />
+  <div className="min-h-screen bg-gray-50">
+    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="text-center">
+        <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Welcome to Recipe Log</h1>
+        <p className="mt-4 text-xl text-gray-600">Your personal recipe collection and discovery platform</p>
+      </div>
+
+      <div className="mt-12">
+        <AuthStatus />
+      </div>
+
+      <div className="mt-8 text-center">
+        <p className="text-gray-600">🚧 More features coming soon! This is the foundation phase.</p>
+      </div>
+    </div>
   </div>
 );
 
-const LoginPage: React.FC = () => <div>Login Page</div>;
-const RegisterPage: React.FC = () => <div>Register Page</div>;
-const RecipesPage: React.FC = () => <div>Recipes Page</div>;
-const SearchPage: React.FC = () => <div>Search Page</div>;
+// Placeholder components for future implementation
+const RecipesPage: React.FC = () => (
+  <ProtectedRoute>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-gray-900">Recipes Page</h1>
+        <p className="mt-2 text-gray-600">Coming soon in Phase 2!</p>
+      </div>
+    </div>
+  </ProtectedRoute>
+);
+
+const SearchPage: React.FC = () => (
+  <ProtectedRoute>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-gray-900">Search Page</h1>
+        <p className="mt-2 text-gray-600">Coming soon in Phase 2!</p>
+      </div>
+    </div>
+  </ProtectedRoute>
+);
 
 const App: React.FC = () => {
   return (
@@ -36,11 +70,35 @@ const App: React.FC = () => {
         <Router>
           <div className="app">
             <Routes>
-              <Route path={ROUTES.HOME} element={<HomePage />} />
-              <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-              <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+              {/* Protected routes */}
+              <Route
+                path={ROUTES.HOME}
+                element={
+                  <ProtectedRoute>
+                    <HomePage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path={ROUTES.RECIPES} element={<RecipesPage />} />
               <Route path={ROUTES.SEARCH} element={<SearchPage />} />
+
+              {/* Public routes (redirect to home if authenticated) */}
+              <Route
+                path={ROUTES.LOGIN}
+                element={
+                  <PublicRoute>
+                    <LoginForm />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path={ROUTES.REGISTER}
+                element={
+                  <PublicRoute>
+                    <RegisterForm />
+                  </PublicRoute>
+                }
+              />
             </Routes>
           </div>
         </Router>
